@@ -12583,24 +12583,24 @@ Default GPU Device: /gpu:0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Number of Epochs</span>
-<span class="n">epochs</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="c1"># Batch Size</span>
 <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="c1"># RNN Size</span>
 <span class="n">rnn_size</span> <span class="o">=</span> <span class="mi">256</span>
 <span class="c1"># Number of Layers</span>
-<span class="n">num_layers</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">num_layers</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="c1"># Embedding Size</span>
-<span class="n">encoding_embedding_size</span> <span class="o">=</span> <span class="mi">300</span>
-<span class="n">decoding_embedding_size</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">encoding_embedding_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">decoding_embedding_size</span> <span class="o">=</span> <span class="mi">256</span>
 <span class="c1"># Learning Rate</span>
-<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.004</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.003</span>
 <span class="c1"># Dropout Keep Probability</span>
-<span class="n">keep_probability</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">keep_probability</span> <span class="o">=</span> <span class="mf">0.7</span>
 </pre></div>
 
 </div>
@@ -12674,7 +12674,7 @@ Default GPU Device: /gpu:0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -12706,8 +12706,13 @@ Default GPU Device: /gpu:0
 <span class="n">valid_source</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">pad_sentence_batch</span><span class="p">(</span><span class="n">source_int_text</span><span class="p">[:</span><span class="n">batch_size</span><span class="p">])</span>
 <span class="n">valid_target</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">pad_sentence_batch</span><span class="p">(</span><span class="n">target_int_text</span><span class="p">[:</span><span class="n">batch_size</span><span class="p">])</span>
 
+<span class="n">resume</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">train_graph</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
+        <span class="n">saver</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
 
     <span class="k">for</span> <span class="n">epoch_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">batch_i</span><span class="p">,</span> <span class="p">(</span><span class="n">source_batch</span><span class="p">,</span> <span class="n">target_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
@@ -12735,10 +12740,11 @@ Default GPU Device: /gpu:0
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch </span><span class="si">{:&gt;3}</span><span class="s1"> Batch </span><span class="si">{:&gt;4}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> - Train Accuracy: </span><span class="si">{:&gt;6.3f}</span><span class="s1">, Validation Accuracy: </span><span class="si">{:&gt;6.3f}</span><span class="s1">, Loss: </span><span class="si">{:&gt;6.3f}</span><span class="s1">&#39;</span>
                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch_i</span><span class="p">,</span> <span class="n">batch_i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_int_text</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">train_acc</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">loss</span><span class="p">))</span>
 
-    <span class="c1"># Save Model</span>
-    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">()</span>
-    <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Model Trained and Saved&#39;</span><span class="p">)</span>
+        <span class="c1"># Save Model after every epoch</span>
+        <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Model Saved&#39;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12753,551 +12759,144 @@ Default GPU Device: /gpu:0
 <div class="prompt"></div>
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Epoch   0 Batch    0/137 - Train Accuracy:  0.269, Validation Accuracy:  0.310, Loss:  5.862
-Epoch   0 Batch    1/137 - Train Accuracy:  0.250, Validation Accuracy:  0.322, Loss:  4.700
-Epoch   0 Batch    2/137 - Train Accuracy:  0.309, Validation Accuracy:  0.343, Loss:  4.519
-Epoch   0 Batch    3/137 - Train Accuracy:  0.313, Validation Accuracy:  0.345, Loss:  3.827
-Epoch   0 Batch    4/137 - Train Accuracy:  0.303, Validation Accuracy:  0.346, Loss:  3.621
-Epoch   0 Batch    5/137 - Train Accuracy:  0.340, Validation Accuracy:  0.368, Loss:  3.445
-Epoch   0 Batch    6/137 - Train Accuracy:  0.366, Validation Accuracy:  0.372, Loss:  3.275
-Epoch   0 Batch    7/137 - Train Accuracy:  0.324, Validation Accuracy:  0.361, Loss:  3.301
-Epoch   0 Batch    8/137 - Train Accuracy:  0.329, Validation Accuracy:  0.363, Loss:  3.226
-Epoch   0 Batch    9/137 - Train Accuracy:  0.374, Validation Accuracy:  0.378, Loss:  3.045
-Epoch   0 Batch   10/137 - Train Accuracy:  0.349, Validation Accuracy:  0.378, Loss:  3.137
-Epoch   0 Batch   11/137 - Train Accuracy:  0.359, Validation Accuracy:  0.385, Loss:  3.114
-Epoch   0 Batch   12/137 - Train Accuracy:  0.354, Validation Accuracy:  0.385, Loss:  3.075
-Epoch   0 Batch   13/137 - Train Accuracy:  0.379, Validation Accuracy:  0.379, Loss:  2.901
-Epoch   0 Batch   14/137 - Train Accuracy:  0.314, Validation Accuracy:  0.384, Loss:  3.131
-Epoch   0 Batch   15/137 - Train Accuracy:  0.348, Validation Accuracy:  0.382, Loss:  2.987
-Epoch   0 Batch   16/137 - Train Accuracy:  0.354, Validation Accuracy:  0.385, Loss:  2.895
-Epoch   0 Batch   17/137 - Train Accuracy:  0.363, Validation Accuracy:  0.394, Loss:  2.862
-Epoch   0 Batch   18/137 - Train Accuracy:  0.379, Validation Accuracy:  0.406, Loss:  2.841
-Epoch   0 Batch   19/137 - Train Accuracy:  0.378, Validation Accuracy:  0.409, Loss:  2.798
-Epoch   0 Batch   20/137 - Train Accuracy:  0.379, Validation Accuracy:  0.409, Loss:  2.771
-Epoch   0 Batch   21/137 - Train Accuracy:  0.418, Validation Accuracy:  0.420, Loss:  2.623
-Epoch   0 Batch   22/137 - Train Accuracy:  0.388, Validation Accuracy:  0.416, Loss:  2.707
-Epoch   0 Batch   23/137 - Train Accuracy:  0.425, Validation Accuracy:  0.425, Loss:  2.574
-Epoch   0 Batch   24/137 - Train Accuracy:  0.391, Validation Accuracy:  0.417, Loss:  2.635
-Epoch   0 Batch   25/137 - Train Accuracy:  0.405, Validation Accuracy:  0.432, Loss:  2.620
-Epoch   0 Batch   26/137 - Train Accuracy:  0.414, Validation Accuracy:  0.446, Loss:  2.595
-Epoch   0 Batch   27/137 - Train Accuracy:  0.417, Validation Accuracy:  0.440, Loss:  2.552
-Epoch   0 Batch   28/137 - Train Accuracy:  0.419, Validation Accuracy:  0.443, Loss:  2.565
-Epoch   0 Batch   29/137 - Train Accuracy:  0.430, Validation Accuracy:  0.456, Loss:  2.563
-Epoch   0 Batch   30/137 - Train Accuracy:  0.447, Validation Accuracy:  0.454, Loss:  2.392
-Epoch   0 Batch   31/137 - Train Accuracy:  0.455, Validation Accuracy:  0.455, Loss:  2.386
-Epoch   0 Batch   32/137 - Train Accuracy:  0.432, Validation Accuracy:  0.460, Loss:  2.494
-Epoch   0 Batch   33/137 - Train Accuracy:  0.448, Validation Accuracy:  0.457, Loss:  2.329
-Epoch   0 Batch   34/137 - Train Accuracy:  0.432, Validation Accuracy:  0.466, Loss:  2.445
-Epoch   0 Batch   35/137 - Train Accuracy:  0.453, Validation Accuracy:  0.477, Loss:  2.396
-Epoch   0 Batch   36/137 - Train Accuracy:  0.464, Validation Accuracy:  0.468, Loss:  2.268
-Epoch   0 Batch   37/137 - Train Accuracy:  0.455, Validation Accuracy:  0.478, Loss:  2.341
-Epoch   0 Batch   38/137 - Train Accuracy:  0.439, Validation Accuracy:  0.469, Loss:  2.328
-Epoch   0 Batch   39/137 - Train Accuracy:  0.458, Validation Accuracy:  0.485, Loss:  2.320
-Epoch   0 Batch   40/137 - Train Accuracy:  0.457, Validation Accuracy:  0.483, Loss:  2.266
-Epoch   0 Batch   41/137 - Train Accuracy:  0.473, Validation Accuracy:  0.492, Loss:  2.256
-Epoch   0 Batch   42/137 - Train Accuracy:  0.467, Validation Accuracy:  0.489, Loss:  2.227
-Epoch   0 Batch   43/137 - Train Accuracy:  0.452, Validation Accuracy:  0.484, Loss:  2.259
-Epoch   0 Batch   44/137 - Train Accuracy:  0.454, Validation Accuracy:  0.486, Loss:  2.242
-Epoch   0 Batch   45/137 - Train Accuracy:  0.470, Validation Accuracy:  0.497, Loss:  2.213
-Epoch   0 Batch   46/137 - Train Accuracy:  0.470, Validation Accuracy:  0.493, Loss:  2.164
-Epoch   0 Batch   47/137 - Train Accuracy:  0.501, Validation Accuracy:  0.508, Loss:  2.101
-Epoch   0 Batch   48/137 - Train Accuracy:  0.480, Validation Accuracy:  0.505, Loss:  2.158
-Epoch   0 Batch   49/137 - Train Accuracy:  0.475, Validation Accuracy:  0.500, Loss:  2.133
-Epoch   0 Batch   50/137 - Train Accuracy:  0.484, Validation Accuracy:  0.503, Loss:  2.120
-Epoch   0 Batch   51/137 - Train Accuracy:  0.461, Validation Accuracy:  0.485, Loss:  2.122
-Epoch   0 Batch   52/137 - Train Accuracy:  0.487, Validation Accuracy:  0.515, Loss:  2.131
-Epoch   0 Batch   53/137 - Train Accuracy:  0.476, Validation Accuracy:  0.510, Loss:  2.126
-Epoch   0 Batch   54/137 - Train Accuracy:  0.456, Validation Accuracy:  0.491, Loss:  2.100
-Epoch   0 Batch   55/137 - Train Accuracy:  0.473, Validation Accuracy:  0.509, Loss:  2.102
-Epoch   0 Batch   56/137 - Train Accuracy:  0.472, Validation Accuracy:  0.495, Loss:  2.087
-Epoch   0 Batch   57/137 - Train Accuracy:  0.515, Validation Accuracy:  0.520, Loss:  1.965
-Epoch   0 Batch   58/137 - Train Accuracy:  0.490, Validation Accuracy:  0.514, Loss:  2.025
-Epoch   0 Batch   59/137 - Train Accuracy:  0.469, Validation Accuracy:  0.499, Loss:  2.053
-Epoch   0 Batch   60/137 - Train Accuracy:  0.494, Validation Accuracy:  0.513, Loss:  2.000
-Epoch   0 Batch   61/137 - Train Accuracy:  0.445, Validation Accuracy:  0.472, Loss:  2.026
-Epoch   0 Batch   62/137 - Train Accuracy:  0.486, Validation Accuracy:  0.516, Loss:  2.065
-Epoch   0 Batch   63/137 - Train Accuracy:  0.489, Validation Accuracy:  0.516, Loss:  2.016
-Epoch   0 Batch   64/137 - Train Accuracy:  0.475, Validation Accuracy:  0.497, Loss:  1.964
-Epoch   0 Batch   65/137 - Train Accuracy:  0.492, Validation Accuracy:  0.515, Loss:  2.018
-Epoch   0 Batch   66/137 - Train Accuracy:  0.436, Validation Accuracy:  0.491, Loss:  2.157
-Epoch   0 Batch   67/137 - Train Accuracy:  0.478, Validation Accuracy:  0.508, Loss:  1.998
-Epoch   0 Batch   68/137 - Train Accuracy:  0.494, Validation Accuracy:  0.523, Loss:  1.972
-Epoch   0 Batch   69/137 - Train Accuracy:  0.445, Validation Accuracy:  0.497, Loss:  2.112
-Epoch   0 Batch   70/137 - Train Accuracy:  0.509, Validation Accuracy:  0.527, Loss:  1.961
-Epoch   0 Batch   71/137 - Train Accuracy:  0.525, Validation Accuracy:  0.538, Loss:  1.897
-Epoch   0 Batch   72/137 - Train Accuracy:  0.501, Validation Accuracy:  0.521, Loss:  1.937
-Epoch   0 Batch   73/137 - Train Accuracy:  0.490, Validation Accuracy:  0.517, Loss:  1.932
-Epoch   0 Batch   74/137 - Train Accuracy:  0.538, Validation Accuracy:  0.540, Loss:  1.838
-Epoch   0 Batch   75/137 - Train Accuracy:  0.497, Validation Accuracy:  0.526, Loss:  1.958
-Epoch   0 Batch   76/137 - Train Accuracy:  0.532, Validation Accuracy:  0.531, Loss:  1.813
-Epoch   0 Batch   77/137 - Train Accuracy:  0.517, Validation Accuracy:  0.544, Loss:  1.898
-Epoch   0 Batch   78/137 - Train Accuracy:  0.503, Validation Accuracy:  0.533, Loss:  1.895
-Epoch   0 Batch   79/137 - Train Accuracy:  0.556, Validation Accuracy:  0.550, Loss:  1.782
-Epoch   0 Batch   80/137 - Train Accuracy:  0.513, Validation Accuracy:  0.531, Loss:  1.859
-Epoch   0 Batch   81/137 - Train Accuracy:  0.526, Validation Accuracy:  0.544, Loss:  1.877
-Epoch   0 Batch   82/137 - Train Accuracy:  0.528, Validation Accuracy:  0.552, Loss:  1.841
-Epoch   0 Batch   83/137 - Train Accuracy:  0.499, Validation Accuracy:  0.521, Loss:  1.832
-Epoch   0 Batch   84/137 - Train Accuracy:  0.535, Validation Accuracy:  0.544, Loss:  1.745
-Epoch   0 Batch   85/137 - Train Accuracy:  0.441, Validation Accuracy:  0.464, Loss:  1.897
-Epoch   0 Batch   86/137 - Train Accuracy:  0.489, Validation Accuracy:  0.525, Loss:  2.026
-Epoch   0 Batch   87/137 - Train Accuracy:  0.534, Validation Accuracy:  0.553, Loss:  1.951
-Epoch   0 Batch   88/137 - Train Accuracy:  0.457, Validation Accuracy:  0.482, Loss:  1.824
-Epoch   0 Batch   89/137 - Train Accuracy:  0.524, Validation Accuracy:  0.550, Loss:  1.998
-Epoch   0 Batch   90/137 - Train Accuracy:  0.520, Validation Accuracy:  0.528, Loss:  1.728
-Epoch   0 Batch   91/137 - Train Accuracy:  0.519, Validation Accuracy:  0.543, Loss:  1.901
-Epoch   0 Batch   92/137 - Train Accuracy:  0.475, Validation Accuracy:  0.496, Loss:  1.783
-Epoch   0 Batch   93/137 - Train Accuracy:  0.592, Validation Accuracy:  0.545, Loss:  1.613
-Epoch   0 Batch   94/137 - Train Accuracy:  0.520, Validation Accuracy:  0.537, Loss:  1.724
-Epoch   0 Batch   95/137 - Train Accuracy:  0.543, Validation Accuracy:  0.557, Loss:  1.788
-Epoch   0 Batch   96/137 - Train Accuracy:  0.509, Validation Accuracy:  0.524, Loss:  1.710
-Epoch   0 Batch   97/137 - Train Accuracy:  0.530, Validation Accuracy:  0.554, Loss:  1.792
-Epoch   0 Batch   98/137 - Train Accuracy:  0.542, Validation Accuracy:  0.562, Loss:  1.695
-Epoch   0 Batch   99/137 - Train Accuracy:  0.550, Validation Accuracy:  0.572, Loss:  1.758
-Epoch   0 Batch  100/137 - Train Accuracy:  0.496, Validation Accuracy:  0.547, Loss:  1.782
-Epoch   0 Batch  101/137 - Train Accuracy:  0.546, Validation Accuracy:  0.573, Loss:  1.731
-Epoch   0 Batch  102/137 - Train Accuracy:  0.558, Validation Accuracy:  0.575, Loss:  1.636
-Epoch   0 Batch  103/137 - Train Accuracy:  0.548, Validation Accuracy:  0.568, Loss:  1.690
-Epoch   0 Batch  104/137 - Train Accuracy:  0.532, Validation Accuracy:  0.555, Loss:  1.625
-Epoch   0 Batch  105/137 - Train Accuracy:  0.574, Validation Accuracy:  0.577, Loss:  1.592
-Epoch   0 Batch  106/137 - Train Accuracy:  0.543, Validation Accuracy:  0.582, Loss:  1.687
-Epoch   0 Batch  107/137 - Train Accuracy:  0.555, Validation Accuracy:  0.573, Loss:  1.567
-Epoch   0 Batch  108/137 - Train Accuracy:  0.574, Validation Accuracy:  0.581, Loss:  1.551
-Epoch   0 Batch  109/137 - Train Accuracy:  0.590, Validation Accuracy:  0.585, Loss:  1.475
-Epoch   0 Batch  110/137 - Train Accuracy:  0.558, Validation Accuracy:  0.581, Loss:  1.567
-Epoch   0 Batch  111/137 - Train Accuracy:  0.539, Validation Accuracy:  0.575, Loss:  1.596
-Epoch   0 Batch  112/137 - Train Accuracy:  0.583, Validation Accuracy:  0.587, Loss:  1.462
-Epoch   0 Batch  113/137 - Train Accuracy:  0.582, Validation Accuracy:  0.589, Loss:  1.464
-Epoch   0 Batch  114/137 - Train Accuracy:  0.572, Validation Accuracy:  0.586, Loss:  1.501
-Epoch   0 Batch  115/137 - Train Accuracy:  0.598, Validation Accuracy:  0.594, Loss:  1.412
-Epoch   0 Batch  116/137 - Train Accuracy:  0.631, Validation Accuracy:  0.598, Loss:  1.295
-Epoch   0 Batch  117/137 - Train Accuracy:  0.558, Validation Accuracy:  0.586, Loss:  1.516
-Epoch   0 Batch  118/137 - Train Accuracy:  0.555, Validation Accuracy:  0.597, Loss:  1.543
-Epoch   0 Batch  119/137 - Train Accuracy:  0.576, Validation Accuracy:  0.598, Loss:  1.468
-Epoch   0 Batch  120/137 - Train Accuracy:  0.571, Validation Accuracy:  0.592, Loss:  1.439
-Epoch   0 Batch  121/137 - Train Accuracy:  0.583, Validation Accuracy:  0.605, Loss:  1.441
-Epoch   0 Batch  122/137 - Train Accuracy:  0.624, Validation Accuracy:  0.610, Loss:  1.309
-Epoch   0 Batch  123/137 - Train Accuracy:  0.572, Validation Accuracy:  0.589, Loss:  1.412
-Epoch   0 Batch  124/137 - Train Accuracy:  0.588, Validation Accuracy:  0.601, Loss:  1.410
-Epoch   0 Batch  125/137 - Train Accuracy:  0.573, Validation Accuracy:  0.593, Loss:  1.468
-Epoch   0 Batch  126/137 - Train Accuracy:  0.584, Validation Accuracy:  0.605, Loss:  1.402
-Epoch   0 Batch  127/137 - Train Accuracy:  0.613, Validation Accuracy:  0.604, Loss:  1.303
-Epoch   0 Batch  128/137 - Train Accuracy:  0.587, Validation Accuracy:  0.602, Loss:  1.384
-Epoch   0 Batch  129/137 - Train Accuracy:  0.595, Validation Accuracy:  0.612, Loss:  1.384
-Epoch   0 Batch  130/137 - Train Accuracy:  0.616, Validation Accuracy:  0.616, Loss:  1.303
-Epoch   0 Batch  131/137 - Train Accuracy:  0.584, Validation Accuracy:  0.603, Loss:  1.376
-Epoch   0 Batch  132/137 - Train Accuracy:  0.579, Validation Accuracy:  0.599, Loss:  1.383
-Epoch   0 Batch  133/137 - Train Accuracy:  0.588, Validation Accuracy:  0.609, Loss:  1.378
-Epoch   0 Batch  134/137 - Train Accuracy:  0.581, Validation Accuracy:  0.615, Loss:  1.394
-Epoch   0 Batch  135/137 - Train Accuracy:  0.573, Validation Accuracy:  0.606, Loss:  1.353
-Epoch   1 Batch    0/137 - Train Accuracy:  0.582, Validation Accuracy:  0.602, Loss:  1.322
-Epoch   1 Batch    1/137 - Train Accuracy:  0.579, Validation Accuracy:  0.612, Loss:  1.367
-Epoch   1 Batch    2/137 - Train Accuracy:  0.608, Validation Accuracy:  0.620, Loss:  1.270
-Epoch   1 Batch    3/137 - Train Accuracy:  0.607, Validation Accuracy:  0.624, Loss:  1.253
-Epoch   1 Batch    4/137 - Train Accuracy:  0.593, Validation Accuracy:  0.614, Loss:  1.267
-Epoch   1 Batch    5/137 - Train Accuracy:  0.614, Validation Accuracy:  0.620, Loss:  1.238
-Epoch   1 Batch    6/137 - Train Accuracy:  0.622, Validation Accuracy:  0.625, Loss:  1.180
-Epoch   1 Batch    7/137 - Train Accuracy:  0.605, Validation Accuracy:  0.622, Loss:  1.223
-Epoch   1 Batch    8/137 - Train Accuracy:  0.622, Validation Accuracy:  0.627, Loss:  1.191
-Epoch   1 Batch    9/137 - Train Accuracy:  0.625, Validation Accuracy:  0.625, Loss:  1.158
-Epoch   1 Batch   10/137 - Train Accuracy:  0.622, Validation Accuracy:  0.630, Loss:  1.188
-Epoch   1 Batch   11/137 - Train Accuracy:  0.609, Validation Accuracy:  0.623, Loss:  1.187
-Epoch   1 Batch   12/137 - Train Accuracy:  0.613, Validation Accuracy:  0.629, Loss:  1.161
-Epoch   1 Batch   13/137 - Train Accuracy:  0.638, Validation Accuracy:  0.637, Loss:  1.096
-Epoch   1 Batch   14/137 - Train Accuracy:  0.593, Validation Accuracy:  0.638, Loss:  1.184
-Epoch   1 Batch   15/137 - Train Accuracy:  0.608, Validation Accuracy:  0.626, Loss:  1.118
-Epoch   1 Batch   16/137 - Train Accuracy:  0.585, Validation Accuracy:  0.601, Loss:  1.111
-Epoch   1 Batch   17/137 - Train Accuracy:  0.616, Validation Accuracy:  0.631, Loss:  1.129
-Epoch   1 Batch   18/137 - Train Accuracy:  0.617, Validation Accuracy:  0.628, Loss:  1.094
-Epoch   1 Batch   19/137 - Train Accuracy:  0.603, Validation Accuracy:  0.623, Loss:  1.089
-Epoch   1 Batch   20/137 - Train Accuracy:  0.610, Validation Accuracy:  0.629, Loss:  1.079
-Epoch   1 Batch   21/137 - Train Accuracy:  0.640, Validation Accuracy:  0.632, Loss:  1.008
-Epoch   1 Batch   22/137 - Train Accuracy:  0.613, Validation Accuracy:  0.628, Loss:  1.049
-Epoch   1 Batch   23/137 - Train Accuracy:  0.640, Validation Accuracy:  0.633, Loss:  0.984
-Epoch   1 Batch   24/137 - Train Accuracy:  0.616, Validation Accuracy:  0.630, Loss:  1.004
-Epoch   1 Batch   25/137 - Train Accuracy:  0.616, Validation Accuracy:  0.629, Loss:  1.017
-Epoch   1 Batch   26/137 - Train Accuracy:  0.609, Validation Accuracy:  0.631, Loss:  1.009
-Epoch   1 Batch   27/137 - Train Accuracy:  0.625, Validation Accuracy:  0.633, Loss:  0.981
-Epoch   1 Batch   28/137 - Train Accuracy:  0.620, Validation Accuracy:  0.627, Loss:  0.980
-Epoch   1 Batch   29/137 - Train Accuracy:  0.617, Validation Accuracy:  0.628, Loss:  0.980
-Epoch   1 Batch   30/137 - Train Accuracy:  0.625, Validation Accuracy:  0.628, Loss:  0.926
-Epoch   1 Batch   31/137 - Train Accuracy:  0.622, Validation Accuracy:  0.631, Loss:  0.935
-Epoch   1 Batch   32/137 - Train Accuracy:  0.616, Validation Accuracy:  0.633, Loss:  0.948
-Epoch   1 Batch   33/137 - Train Accuracy:  0.627, Validation Accuracy:  0.627, Loss:  0.914
-Epoch   1 Batch   34/137 - Train Accuracy:  0.607, Validation Accuracy:  0.628, Loss:  0.968
-Epoch   1 Batch   35/137 - Train Accuracy:  0.618, Validation Accuracy:  0.627, Loss:  0.934
-Epoch   1 Batch   36/137 - Train Accuracy:  0.636, Validation Accuracy:  0.629, Loss:  0.893
-Epoch   1 Batch   37/137 - Train Accuracy:  0.622, Validation Accuracy:  0.631, Loss:  0.901
-Epoch   1 Batch   38/137 - Train Accuracy:  0.608, Validation Accuracy:  0.632, Loss:  0.919
-Epoch   1 Batch   39/137 - Train Accuracy:  0.625, Validation Accuracy:  0.635, Loss:  0.898
-Epoch   1 Batch   40/137 - Train Accuracy:  0.611, Validation Accuracy:  0.624, Loss:  0.871
-Epoch   1 Batch   41/137 - Train Accuracy:  0.622, Validation Accuracy:  0.625, Loss:  0.867
-Epoch   1 Batch   42/137 - Train Accuracy:  0.616, Validation Accuracy:  0.631, Loss:  0.864
-Epoch   1 Batch   43/137 - Train Accuracy:  0.596, Validation Accuracy:  0.619, Loss:  0.867
-Epoch   1 Batch   44/137 - Train Accuracy:  0.616, Validation Accuracy:  0.634, Loss:  0.871
-Epoch   1 Batch   45/137 - Train Accuracy:  0.599, Validation Accuracy:  0.617, Loss:  0.841
-Epoch   1 Batch   46/137 - Train Accuracy:  0.636, Validation Accuracy:  0.636, Loss:  0.820
-Epoch   1 Batch   47/137 - Train Accuracy:  0.635, Validation Accuracy:  0.631, Loss:  0.797
-Epoch   1 Batch   48/137 - Train Accuracy:  0.616, Validation Accuracy:  0.627, Loss:  0.837
-Epoch   1 Batch   49/137 - Train Accuracy:  0.619, Validation Accuracy:  0.640, Loss:  0.825
-Epoch   1 Batch   50/137 - Train Accuracy:  0.616, Validation Accuracy:  0.628, Loss:  0.817
-Epoch   1 Batch   51/137 - Train Accuracy:  0.617, Validation Accuracy:  0.632, Loss:  0.795
-Epoch   1 Batch   52/137 - Train Accuracy:  0.630, Validation Accuracy:  0.633, Loss:  0.795
-Epoch   1 Batch   53/137 - Train Accuracy:  0.612, Validation Accuracy:  0.636, Loss:  0.805
-Epoch   1 Batch   54/137 - Train Accuracy:  0.629, Validation Accuracy:  0.641, Loss:  0.788
-Epoch   1 Batch   55/137 - Train Accuracy:  0.606, Validation Accuracy:  0.622, Loss:  0.801
-Epoch   1 Batch   56/137 - Train Accuracy:  0.634, Validation Accuracy:  0.644, Loss:  0.774
-Epoch   1 Batch   57/137 - Train Accuracy:  0.643, Validation Accuracy:  0.647, Loss:  0.738
-Epoch   1 Batch   58/137 - Train Accuracy:  0.627, Validation Accuracy:  0.639, Loss:  0.753
-Epoch   1 Batch   59/137 - Train Accuracy:  0.640, Validation Accuracy:  0.645, Loss:  0.760
-Epoch   1 Batch   60/137 - Train Accuracy:  0.646, Validation Accuracy:  0.656, Loss:  0.743
-Epoch   1 Batch   61/137 - Train Accuracy:  0.636, Validation Accuracy:  0.647, Loss:  0.732
-Epoch   1 Batch   62/137 - Train Accuracy:  0.642, Validation Accuracy:  0.650, Loss:  0.742
-Epoch   1 Batch   63/137 - Train Accuracy:  0.645, Validation Accuracy:  0.655, Loss:  0.729
-Epoch   1 Batch   64/137 - Train Accuracy:  0.645, Validation Accuracy:  0.654, Loss:  0.725
-Epoch   1 Batch   65/137 - Train Accuracy:  0.643, Validation Accuracy:  0.649, Loss:  0.728
-Epoch   1 Batch   66/137 - Train Accuracy:  0.625, Validation Accuracy:  0.657, Loss:  0.756
-Epoch   1 Batch   67/137 - Train Accuracy:  0.639, Validation Accuracy:  0.653, Loss:  0.710
-Epoch   1 Batch   68/137 - Train Accuracy:  0.652, Validation Accuracy:  0.660, Loss:  0.711
-Epoch   1 Batch   69/137 - Train Accuracy:  0.623, Validation Accuracy:  0.660, Loss:  0.755
-Epoch   1 Batch   70/137 - Train Accuracy:  0.660, Validation Accuracy:  0.664, Loss:  0.683
-Epoch   1 Batch   71/137 - Train Accuracy:  0.645, Validation Accuracy:  0.653, Loss:  0.699
-Epoch   1 Batch   72/137 - Train Accuracy:  0.651, Validation Accuracy:  0.660, Loss:  0.683
-Epoch   1 Batch   73/137 - Train Accuracy:  0.651, Validation Accuracy:  0.667, Loss:  0.676
-Epoch   1 Batch   74/137 - Train Accuracy:  0.680, Validation Accuracy:  0.665, Loss:  0.645
-Epoch   1 Batch   75/137 - Train Accuracy:  0.640, Validation Accuracy:  0.657, Loss:  0.694
-Epoch   1 Batch   76/137 - Train Accuracy:  0.659, Validation Accuracy:  0.657, Loss:  0.650
-Epoch   1 Batch   77/137 - Train Accuracy:  0.651, Validation Accuracy:  0.664, Loss:  0.673
-Epoch   1 Batch   78/137 - Train Accuracy:  0.659, Validation Accuracy:  0.666, Loss:  0.660
-Epoch   1 Batch   79/137 - Train Accuracy:  0.670, Validation Accuracy:  0.670, Loss:  0.636
-Epoch   1 Batch   80/137 - Train Accuracy:  0.652, Validation Accuracy:  0.671, Loss:  0.665
-Epoch   1 Batch   81/137 - Train Accuracy:  0.650, Validation Accuracy:  0.668, Loss:  0.659
-Epoch   1 Batch   82/137 - Train Accuracy:  0.639, Validation Accuracy:  0.659, Loss:  0.654
-Epoch   1 Batch   83/137 - Train Accuracy:  0.661, Validation Accuracy:  0.670, Loss:  0.645
-Epoch   1 Batch   84/137 - Train Accuracy:  0.681, Validation Accuracy:  0.671, Loss:  0.611
-Epoch   1 Batch   85/137 - Train Accuracy:  0.650, Validation Accuracy:  0.665, Loss:  0.645
-Epoch   1 Batch   86/137 - Train Accuracy:  0.659, Validation Accuracy:  0.667, Loss:  0.640
-Epoch   1 Batch   87/137 - Train Accuracy:  0.661, Validation Accuracy:  0.671, Loss:  0.643
-Epoch   1 Batch   88/137 - Train Accuracy:  0.663, Validation Accuracy:  0.675, Loss:  0.620
-Epoch   1 Batch   89/137 - Train Accuracy:  0.663, Validation Accuracy:  0.678, Loss:  0.648
-Epoch   1 Batch   90/137 - Train Accuracy:  0.677, Validation Accuracy:  0.670, Loss:  0.596
-Epoch   1 Batch   91/137 - Train Accuracy:  0.658, Validation Accuracy:  0.667, Loss:  0.624
-Epoch   1 Batch   92/137 - Train Accuracy:  0.664, Validation Accuracy:  0.669, Loss:  0.619
-Epoch   1 Batch   93/137 - Train Accuracy:  0.708, Validation Accuracy:  0.670, Loss:  0.540
-Epoch   1 Batch   94/137 - Train Accuracy:  0.665, Validation Accuracy:  0.673, Loss:  0.602
-Epoch   1 Batch   95/137 - Train Accuracy:  0.664, Validation Accuracy:  0.673, Loss:  0.603
-Epoch   1 Batch   96/137 - Train Accuracy:  0.673, Validation Accuracy:  0.674, Loss:  0.595
-Epoch   1 Batch   97/137 - Train Accuracy:  0.664, Validation Accuracy:  0.674, Loss:  0.601
-Epoch   1 Batch   98/137 - Train Accuracy:  0.671, Validation Accuracy:  0.678, Loss:  0.598
-Epoch   1 Batch   99/137 - Train Accuracy:  0.671, Validation Accuracy:  0.679, Loss:  0.598
-Epoch   1 Batch  100/137 - Train Accuracy:  0.637, Validation Accuracy:  0.678, Loss:  0.629
-Epoch   1 Batch  101/137 - Train Accuracy:  0.672, Validation Accuracy:  0.680, Loss:  0.599
-Epoch   1 Batch  102/137 - Train Accuracy:  0.676, Validation Accuracy:  0.676, Loss:  0.583
-Epoch   1 Batch  103/137 - Train Accuracy:  0.669, Validation Accuracy:  0.677, Loss:  0.593
-Epoch   1 Batch  104/137 - Train Accuracy:  0.667, Validation Accuracy:  0.678, Loss:  0.578
-Epoch   1 Batch  105/137 - Train Accuracy:  0.678, Validation Accuracy:  0.681, Loss:  0.555
-Epoch   1 Batch  106/137 - Train Accuracy:  0.666, Validation Accuracy:  0.680, Loss:  0.597
-Epoch   1 Batch  107/137 - Train Accuracy:  0.671, Validation Accuracy:  0.683, Loss:  0.573
-Epoch   1 Batch  108/137 - Train Accuracy:  0.676, Validation Accuracy:  0.682, Loss:  0.576
-Epoch   1 Batch  109/137 - Train Accuracy:  0.695, Validation Accuracy:  0.681, Loss:  0.538
-Epoch   1 Batch  110/137 - Train Accuracy:  0.662, Validation Accuracy:  0.685, Loss:  0.570
-Epoch   1 Batch  111/137 - Train Accuracy:  0.670, Validation Accuracy:  0.685, Loss:  0.583
-Epoch   1 Batch  112/137 - Train Accuracy:  0.700, Validation Accuracy:  0.695, Loss:  0.536
-Epoch   1 Batch  113/137 - Train Accuracy:  0.703, Validation Accuracy:  0.693, Loss:  0.546
-Epoch   1 Batch  114/137 - Train Accuracy:  0.682, Validation Accuracy:  0.689, Loss:  0.557
-Epoch   1 Batch  115/137 - Train Accuracy:  0.703, Validation Accuracy:  0.686, Loss:  0.522
-Epoch   1 Batch  116/137 - Train Accuracy:  0.721, Validation Accuracy:  0.688, Loss:  0.481
-Epoch   1 Batch  117/137 - Train Accuracy:  0.672, Validation Accuracy:  0.689, Loss:  0.549
-Epoch   1 Batch  118/137 - Train Accuracy:  0.672, Validation Accuracy:  0.695, Loss:  0.575
-Epoch   1 Batch  119/137 - Train Accuracy:  0.701, Validation Accuracy:  0.701, Loss:  0.541
-Epoch   1 Batch  120/137 - Train Accuracy:  0.695, Validation Accuracy:  0.702, Loss:  0.527
-Epoch   1 Batch  121/137 - Train Accuracy:  0.702, Validation Accuracy:  0.697, Loss:  0.524
-Epoch   1 Batch  122/137 - Train Accuracy:  0.719, Validation Accuracy:  0.689, Loss:  0.484
-Epoch   1 Batch  123/137 - Train Accuracy:  0.678, Validation Accuracy:  0.690, Loss:  0.539
-Epoch   1 Batch  124/137 - Train Accuracy:  0.695, Validation Accuracy:  0.694, Loss:  0.521
-Epoch   1 Batch  125/137 - Train Accuracy:  0.697, Validation Accuracy:  0.709, Loss:  0.529
-Epoch   1 Batch  126/137 - Train Accuracy:  0.689, Validation Accuracy:  0.697, Loss:  0.512
-Epoch   1 Batch  127/137 - Train Accuracy:  0.726, Validation Accuracy:  0.711, Loss:  0.490
-Epoch   1 Batch  128/137 - Train Accuracy:  0.705, Validation Accuracy:  0.709, Loss:  0.515
-Epoch   1 Batch  129/137 - Train Accuracy:  0.700, Validation Accuracy:  0.708, Loss:  0.524
-Epoch   1 Batch  130/137 - Train Accuracy:  0.708, Validation Accuracy:  0.704, Loss:  0.493
-Epoch   1 Batch  131/137 - Train Accuracy:  0.686, Validation Accuracy:  0.695, Loss:  0.523
-Epoch   1 Batch  132/137 - Train Accuracy:  0.698, Validation Accuracy:  0.694, Loss:  0.515
-Epoch   1 Batch  133/137 - Train Accuracy:  0.707, Validation Accuracy:  0.708, Loss:  0.502
-Epoch   1 Batch  134/137 - Train Accuracy:  0.691, Validation Accuracy:  0.709, Loss:  0.520
-Epoch   1 Batch  135/137 - Train Accuracy:  0.708, Validation Accuracy:  0.712, Loss:  0.529
-Epoch   2 Batch    0/137 - Train Accuracy:  0.718, Validation Accuracy:  0.719, Loss:  0.494
-Epoch   2 Batch    1/137 - Train Accuracy:  0.705, Validation Accuracy:  0.723, Loss:  0.510
-Epoch   2 Batch    2/137 - Train Accuracy:  0.712, Validation Accuracy:  0.719, Loss:  0.483
-Epoch   2 Batch    3/137 - Train Accuracy:  0.707, Validation Accuracy:  0.713, Loss:  0.484
-Epoch   2 Batch    4/137 - Train Accuracy:  0.714, Validation Accuracy:  0.717, Loss:  0.504
-Epoch   2 Batch    5/137 - Train Accuracy:  0.716, Validation Accuracy:  0.727, Loss:  0.488
-Epoch   2 Batch    6/137 - Train Accuracy:  0.724, Validation Accuracy:  0.724, Loss:  0.460
-Epoch   2 Batch    7/137 - Train Accuracy:  0.708, Validation Accuracy:  0.715, Loss:  0.477
-Epoch   2 Batch    8/137 - Train Accuracy:  0.721, Validation Accuracy:  0.713, Loss:  0.468
-Epoch   2 Batch    9/137 - Train Accuracy:  0.737, Validation Accuracy:  0.732, Loss:  0.452
-Epoch   2 Batch   10/137 - Train Accuracy:  0.732, Validation Accuracy:  0.735, Loss:  0.478
-Epoch   2 Batch   11/137 - Train Accuracy:  0.736, Validation Accuracy:  0.734, Loss:  0.465
-Epoch   2 Batch   12/137 - Train Accuracy:  0.729, Validation Accuracy:  0.734, Loss:  0.466
-Epoch   2 Batch   13/137 - Train Accuracy:  0.727, Validation Accuracy:  0.733, Loss:  0.440
-Epoch   2 Batch   14/137 - Train Accuracy:  0.709, Validation Accuracy:  0.736, Loss:  0.488
-Epoch   2 Batch   15/137 - Train Accuracy:  0.734, Validation Accuracy:  0.733, Loss:  0.452
-Epoch   2 Batch   16/137 - Train Accuracy:  0.738, Validation Accuracy:  0.731, Loss:  0.445
-Epoch   2 Batch   17/137 - Train Accuracy:  0.719, Validation Accuracy:  0.734, Loss:  0.460
-Epoch   2 Batch   18/137 - Train Accuracy:  0.731, Validation Accuracy:  0.733, Loss:  0.451
-Epoch   2 Batch   19/137 - Train Accuracy:  0.727, Validation Accuracy:  0.738, Loss:  0.453
-Epoch   2 Batch   20/137 - Train Accuracy:  0.732, Validation Accuracy:  0.738, Loss:  0.449
-Epoch   2 Batch   21/137 - Train Accuracy:  0.753, Validation Accuracy:  0.741, Loss:  0.419
-Epoch   2 Batch   22/137 - Train Accuracy:  0.719, Validation Accuracy:  0.737, Loss:  0.446
-Epoch   2 Batch   23/137 - Train Accuracy:  0.751, Validation Accuracy:  0.738, Loss:  0.411
-Epoch   2 Batch   24/137 - Train Accuracy:  0.744, Validation Accuracy:  0.744, Loss:  0.425
-Epoch   2 Batch   25/137 - Train Accuracy:  0.739, Validation Accuracy:  0.740, Loss:  0.433
-Epoch   2 Batch   26/137 - Train Accuracy:  0.741, Validation Accuracy:  0.742, Loss:  0.425
-Epoch   2 Batch   27/137 - Train Accuracy:  0.751, Validation Accuracy:  0.740, Loss:  0.428
-Epoch   2 Batch   28/137 - Train Accuracy:  0.740, Validation Accuracy:  0.746, Loss:  0.432
-Epoch   2 Batch   29/137 - Train Accuracy:  0.746, Validation Accuracy:  0.750, Loss:  0.429
-Epoch   2 Batch   30/137 - Train Accuracy:  0.755, Validation Accuracy:  0.748, Loss:  0.401
-Epoch   2 Batch   31/137 - Train Accuracy:  0.751, Validation Accuracy:  0.744, Loss:  0.409
-Epoch   2 Batch   32/137 - Train Accuracy:  0.747, Validation Accuracy:  0.750, Loss:  0.417
-Epoch   2 Batch   33/137 - Train Accuracy:  0.751, Validation Accuracy:  0.759, Loss:  0.404
-Epoch   2 Batch   34/137 - Train Accuracy:  0.738, Validation Accuracy:  0.757, Loss:  0.428
-Epoch   2 Batch   35/137 - Train Accuracy:  0.748, Validation Accuracy:  0.751, Loss:  0.419
-Epoch   2 Batch   36/137 - Train Accuracy:  0.746, Validation Accuracy:  0.754, Loss:  0.403
-Epoch   2 Batch   37/137 - Train Accuracy:  0.748, Validation Accuracy:  0.751, Loss:  0.410
-Epoch   2 Batch   38/137 - Train Accuracy:  0.744, Validation Accuracy:  0.750, Loss:  0.415
-Epoch   2 Batch   39/137 - Train Accuracy:  0.752, Validation Accuracy:  0.755, Loss:  0.406
-Epoch   2 Batch   40/137 - Train Accuracy:  0.746, Validation Accuracy:  0.753, Loss:  0.405
-Epoch   2 Batch   41/137 - Train Accuracy:  0.767, Validation Accuracy:  0.754, Loss:  0.401
-Epoch   2 Batch   42/137 - Train Accuracy:  0.750, Validation Accuracy:  0.758, Loss:  0.409
-Epoch   2 Batch   43/137 - Train Accuracy:  0.748, Validation Accuracy:  0.748, Loss:  0.402
-Epoch   2 Batch   44/137 - Train Accuracy:  0.732, Validation Accuracy:  0.753, Loss:  0.410
-Epoch   2 Batch   45/137 - Train Accuracy:  0.752, Validation Accuracy:  0.759, Loss:  0.401
-Epoch   2 Batch   46/137 - Train Accuracy:  0.769, Validation Accuracy:  0.753, Loss:  0.389
-Epoch   2 Batch   47/137 - Train Accuracy:  0.767, Validation Accuracy:  0.762, Loss:  0.382
-Epoch   2 Batch   48/137 - Train Accuracy:  0.755, Validation Accuracy:  0.763, Loss:  0.402
-Epoch   2 Batch   49/137 - Train Accuracy:  0.754, Validation Accuracy:  0.766, Loss:  0.395
-Epoch   2 Batch   50/137 - Train Accuracy:  0.758, Validation Accuracy:  0.765, Loss:  0.388
-Epoch   2 Batch   51/137 - Train Accuracy:  0.767, Validation Accuracy:  0.765, Loss:  0.386
-Epoch   2 Batch   52/137 - Train Accuracy:  0.760, Validation Accuracy:  0.760, Loss:  0.380
-Epoch   2 Batch   53/137 - Train Accuracy:  0.746, Validation Accuracy:  0.768, Loss:  0.388
-Epoch   2 Batch   54/137 - Train Accuracy:  0.759, Validation Accuracy:  0.764, Loss:  0.377
-Epoch   2 Batch   55/137 - Train Accuracy:  0.753, Validation Accuracy:  0.776, Loss:  0.384
-Epoch   2 Batch   56/137 - Train Accuracy:  0.764, Validation Accuracy:  0.765, Loss:  0.372
-Epoch   2 Batch   57/137 - Train Accuracy:  0.775, Validation Accuracy:  0.776, Loss:  0.364
-Epoch   2 Batch   58/137 - Train Accuracy:  0.764, Validation Accuracy:  0.771, Loss:  0.372
-Epoch   2 Batch   59/137 - Train Accuracy:  0.769, Validation Accuracy:  0.769, Loss:  0.376
-Epoch   2 Batch   60/137 - Train Accuracy:  0.780, Validation Accuracy:  0.778, Loss:  0.364
-Epoch   2 Batch   61/137 - Train Accuracy:  0.776, Validation Accuracy:  0.783, Loss:  0.361
-Epoch   2 Batch   62/137 - Train Accuracy:  0.771, Validation Accuracy:  0.777, Loss:  0.365
-Epoch   2 Batch   63/137 - Train Accuracy:  0.776, Validation Accuracy:  0.777, Loss:  0.364
-Epoch   2 Batch   64/137 - Train Accuracy:  0.775, Validation Accuracy:  0.779, Loss:  0.361
-Epoch   2 Batch   65/137 - Train Accuracy:  0.782, Validation Accuracy:  0.789, Loss:  0.358
-Epoch   2 Batch   66/137 - Train Accuracy:  0.758, Validation Accuracy:  0.784, Loss:  0.371
-Epoch   2 Batch   67/137 - Train Accuracy:  0.777, Validation Accuracy:  0.775, Loss:  0.354
-Epoch   2 Batch   68/137 - Train Accuracy:  0.786, Validation Accuracy:  0.787, Loss:  0.350
-Epoch   2 Batch   69/137 - Train Accuracy:  0.761, Validation Accuracy:  0.787, Loss:  0.377
-Epoch   2 Batch   70/137 - Train Accuracy:  0.783, Validation Accuracy:  0.785, Loss:  0.344
-Epoch   2 Batch   71/137 - Train Accuracy:  0.792, Validation Accuracy:  0.786, Loss:  0.354
-Epoch   2 Batch   72/137 - Train Accuracy:  0.789, Validation Accuracy:  0.786, Loss:  0.342
-Epoch   2 Batch   73/137 - Train Accuracy:  0.788, Validation Accuracy:  0.788, Loss:  0.333
-Epoch   2 Batch   74/137 - Train Accuracy:  0.793, Validation Accuracy:  0.793, Loss:  0.325
-Epoch   2 Batch   75/137 - Train Accuracy:  0.773, Validation Accuracy:  0.796, Loss:  0.354
-Epoch   2 Batch   76/137 - Train Accuracy:  0.788, Validation Accuracy:  0.793, Loss:  0.328
-Epoch   2 Batch   77/137 - Train Accuracy:  0.793, Validation Accuracy:  0.798, Loss:  0.337
-Epoch   2 Batch   78/137 - Train Accuracy:  0.793, Validation Accuracy:  0.797, Loss:  0.335
-Epoch   2 Batch   79/137 - Train Accuracy:  0.788, Validation Accuracy:  0.793, Loss:  0.321
-Epoch   2 Batch   80/137 - Train Accuracy:  0.796, Validation Accuracy:  0.799, Loss:  0.332
-Epoch   2 Batch   81/137 - Train Accuracy:  0.792, Validation Accuracy:  0.801, Loss:  0.326
-Epoch   2 Batch   82/137 - Train Accuracy:  0.798, Validation Accuracy:  0.797, Loss:  0.333
-Epoch   2 Batch   83/137 - Train Accuracy:  0.795, Validation Accuracy:  0.794, Loss:  0.327
-Epoch   2 Batch   84/137 - Train Accuracy:  0.803, Validation Accuracy:  0.797, Loss:  0.311
-Epoch   2 Batch   85/137 - Train Accuracy:  0.797, Validation Accuracy:  0.804, Loss:  0.323
-Epoch   2 Batch   86/137 - Train Accuracy:  0.786, Validation Accuracy:  0.792, Loss:  0.322
-Epoch   2 Batch   87/137 - Train Accuracy:  0.783, Validation Accuracy:  0.787, Loss:  0.329
-Epoch   2 Batch   88/137 - Train Accuracy:  0.776, Validation Accuracy:  0.779, Loss:  0.324
-Epoch   2 Batch   89/137 - Train Accuracy:  0.764, Validation Accuracy:  0.776, Loss:  0.353
-Epoch   2 Batch   90/137 - Train Accuracy:  0.783, Validation Accuracy:  0.776, Loss:  0.335
-Epoch   2 Batch   91/137 - Train Accuracy:  0.779, Validation Accuracy:  0.791, Loss:  0.338
-Epoch   2 Batch   92/137 - Train Accuracy:  0.784, Validation Accuracy:  0.791, Loss:  0.321
-Epoch   2 Batch   93/137 - Train Accuracy:  0.817, Validation Accuracy:  0.796, Loss:  0.285
-Epoch   2 Batch   94/137 - Train Accuracy:  0.794, Validation Accuracy:  0.800, Loss:  0.314
-Epoch   2 Batch   95/137 - Train Accuracy:  0.801, Validation Accuracy:  0.797, Loss:  0.313
-Epoch   2 Batch   96/137 - Train Accuracy:  0.798, Validation Accuracy:  0.796, Loss:  0.306
-Epoch   2 Batch   97/137 - Train Accuracy:  0.798, Validation Accuracy:  0.805, Loss:  0.313
-Epoch   2 Batch   98/137 - Train Accuracy:  0.794, Validation Accuracy:  0.799, Loss:  0.304
-Epoch   2 Batch   99/137 - Train Accuracy:  0.801, Validation Accuracy:  0.807, Loss:  0.314
-Epoch   2 Batch  100/137 - Train Accuracy:  0.780, Validation Accuracy:  0.804, Loss:  0.317
-Epoch   2 Batch  101/137 - Train Accuracy:  0.800, Validation Accuracy:  0.803, Loss:  0.316
-Epoch   2 Batch  102/137 - Train Accuracy:  0.806, Validation Accuracy:  0.807, Loss:  0.297
-Epoch   2 Batch  103/137 - Train Accuracy:  0.794, Validation Accuracy:  0.807, Loss:  0.301
-Epoch   2 Batch  104/137 - Train Accuracy:  0.802, Validation Accuracy:  0.811, Loss:  0.293
-Epoch   2 Batch  105/137 - Train Accuracy:  0.806, Validation Accuracy:  0.819, Loss:  0.282
-Epoch   2 Batch  106/137 - Train Accuracy:  0.802, Validation Accuracy:  0.817, Loss:  0.303
-Epoch   2 Batch  107/137 - Train Accuracy:  0.814, Validation Accuracy:  0.813, Loss:  0.286
-Epoch   2 Batch  108/137 - Train Accuracy:  0.802, Validation Accuracy:  0.818, Loss:  0.293
-Epoch   2 Batch  109/137 - Train Accuracy:  0.832, Validation Accuracy:  0.821, Loss:  0.270
-Epoch   2 Batch  110/137 - Train Accuracy:  0.811, Validation Accuracy:  0.815, Loss:  0.290
-Epoch   2 Batch  111/137 - Train Accuracy:  0.809, Validation Accuracy:  0.815, Loss:  0.287
-Epoch   2 Batch  112/137 - Train Accuracy:  0.824, Validation Accuracy:  0.822, Loss:  0.270
-Epoch   2 Batch  113/137 - Train Accuracy:  0.822, Validation Accuracy:  0.820, Loss:  0.272
-Epoch   2 Batch  114/137 - Train Accuracy:  0.810, Validation Accuracy:  0.821, Loss:  0.278
-Epoch   2 Batch  115/137 - Train Accuracy:  0.819, Validation Accuracy:  0.821, Loss:  0.264
-Epoch   2 Batch  116/137 - Train Accuracy:  0.843, Validation Accuracy:  0.824, Loss:  0.242
-Epoch   2 Batch  117/137 - Train Accuracy:  0.811, Validation Accuracy:  0.827, Loss:  0.272
-Epoch   2 Batch  118/137 - Train Accuracy:  0.809, Validation Accuracy:  0.825, Loss:  0.284
-Epoch   2 Batch  119/137 - Train Accuracy:  0.819, Validation Accuracy:  0.825, Loss:  0.269
-Epoch   2 Batch  120/137 - Train Accuracy:  0.825, Validation Accuracy:  0.828, Loss:  0.261
-Epoch   2 Batch  121/137 - Train Accuracy:  0.830, Validation Accuracy:  0.834, Loss:  0.256
-Epoch   2 Batch  122/137 - Train Accuracy:  0.844, Validation Accuracy:  0.838, Loss:  0.237
-Epoch   2 Batch  123/137 - Train Accuracy:  0.810, Validation Accuracy:  0.831, Loss:  0.270
-Epoch   2 Batch  124/137 - Train Accuracy:  0.828, Validation Accuracy:  0.832, Loss:  0.260
-Epoch   2 Batch  125/137 - Train Accuracy:  0.815, Validation Accuracy:  0.834, Loss:  0.265
-Epoch   2 Batch  126/137 - Train Accuracy:  0.830, Validation Accuracy:  0.834, Loss:  0.250
-Epoch   2 Batch  127/137 - Train Accuracy:  0.842, Validation Accuracy:  0.834, Loss:  0.235
-Epoch   2 Batch  128/137 - Train Accuracy:  0.840, Validation Accuracy:  0.841, Loss:  0.246
-Epoch   2 Batch  129/137 - Train Accuracy:  0.807, Validation Accuracy:  0.838, Loss:  0.256
-Epoch   2 Batch  130/137 - Train Accuracy:  0.825, Validation Accuracy:  0.839, Loss:  0.240
-Epoch   2 Batch  131/137 - Train Accuracy:  0.814, Validation Accuracy:  0.842, Loss:  0.261
-Epoch   2 Batch  132/137 - Train Accuracy:  0.835, Validation Accuracy:  0.838, Loss:  0.255
-Epoch   2 Batch  133/137 - Train Accuracy:  0.831, Validation Accuracy:  0.841, Loss:  0.241
-Epoch   2 Batch  134/137 - Train Accuracy:  0.822, Validation Accuracy:  0.848, Loss:  0.258
-Epoch   2 Batch  135/137 - Train Accuracy:  0.827, Validation Accuracy:  0.839, Loss:  0.258
-Epoch   3 Batch    0/137 - Train Accuracy:  0.826, Validation Accuracy:  0.839, Loss:  0.248
-Epoch   3 Batch    1/137 - Train Accuracy:  0.833, Validation Accuracy:  0.844, Loss:  0.252
-Epoch   3 Batch    2/137 - Train Accuracy:  0.851, Validation Accuracy:  0.849, Loss:  0.231
-Epoch   3 Batch    3/137 - Train Accuracy:  0.841, Validation Accuracy:  0.842, Loss:  0.235
-Epoch   3 Batch    4/137 - Train Accuracy:  0.836, Validation Accuracy:  0.841, Loss:  0.244
-Epoch   3 Batch    5/137 - Train Accuracy:  0.836, Validation Accuracy:  0.847, Loss:  0.241
-Epoch   3 Batch    6/137 - Train Accuracy:  0.841, Validation Accuracy:  0.848, Loss:  0.220
-Epoch   3 Batch    7/137 - Train Accuracy:  0.831, Validation Accuracy:  0.845, Loss:  0.226
-Epoch   3 Batch    8/137 - Train Accuracy:  0.847, Validation Accuracy:  0.847, Loss:  0.225
-Epoch   3 Batch    9/137 - Train Accuracy:  0.851, Validation Accuracy:  0.851, Loss:  0.213
-Epoch   3 Batch   10/137 - Train Accuracy:  0.840, Validation Accuracy:  0.851, Loss:  0.230
-Epoch   3 Batch   11/137 - Train Accuracy:  0.841, Validation Accuracy:  0.845, Loss:  0.225
-Epoch   3 Batch   12/137 - Train Accuracy:  0.843, Validation Accuracy:  0.853, Loss:  0.228
-Epoch   3 Batch   13/137 - Train Accuracy:  0.850, Validation Accuracy:  0.855, Loss:  0.213
-Epoch   3 Batch   14/137 - Train Accuracy:  0.836, Validation Accuracy:  0.850, Loss:  0.235
-Epoch   3 Batch   15/137 - Train Accuracy:  0.855, Validation Accuracy:  0.860, Loss:  0.225
-Epoch   3 Batch   16/137 - Train Accuracy:  0.852, Validation Accuracy:  0.854, Loss:  0.214
-Epoch   3 Batch   17/137 - Train Accuracy:  0.836, Validation Accuracy:  0.849, Loss:  0.220
-Epoch   3 Batch   18/137 - Train Accuracy:  0.846, Validation Accuracy:  0.855, Loss:  0.217
-Epoch   3 Batch   19/137 - Train Accuracy:  0.847, Validation Accuracy:  0.855, Loss:  0.215
-Epoch   3 Batch   20/137 - Train Accuracy:  0.847, Validation Accuracy:  0.853, Loss:  0.211
-Epoch   3 Batch   21/137 - Train Accuracy:  0.860, Validation Accuracy:  0.855, Loss:  0.197
-Epoch   3 Batch   22/137 - Train Accuracy:  0.861, Validation Accuracy:  0.859, Loss:  0.205
-Epoch   3 Batch   23/137 - Train Accuracy:  0.857, Validation Accuracy:  0.857, Loss:  0.191
-Epoch   3 Batch   24/137 - Train Accuracy:  0.858, Validation Accuracy:  0.860, Loss:  0.199
-Epoch   3 Batch   25/137 - Train Accuracy:  0.857, Validation Accuracy:  0.858, Loss:  0.203
-Epoch   3 Batch   26/137 - Train Accuracy:  0.849, Validation Accuracy:  0.853, Loss:  0.197
-Epoch   3 Batch   27/137 - Train Accuracy:  0.869, Validation Accuracy:  0.859, Loss:  0.204
-Epoch   3 Batch   28/137 - Train Accuracy:  0.853, Validation Accuracy:  0.862, Loss:  0.199
-Epoch   3 Batch   29/137 - Train Accuracy:  0.858, Validation Accuracy:  0.865, Loss:  0.201
-Epoch   3 Batch   30/137 - Train Accuracy:  0.865, Validation Accuracy:  0.867, Loss:  0.183
-Epoch   3 Batch   31/137 - Train Accuracy:  0.860, Validation Accuracy:  0.868, Loss:  0.190
-Epoch   3 Batch   32/137 - Train Accuracy:  0.868, Validation Accuracy:  0.868, Loss:  0.190
-Epoch   3 Batch   33/137 - Train Accuracy:  0.859, Validation Accuracy:  0.862, Loss:  0.185
-Epoch   3 Batch   34/137 - Train Accuracy:  0.847, Validation Accuracy:  0.866, Loss:  0.204
-Epoch   3 Batch   35/137 - Train Accuracy:  0.852, Validation Accuracy:  0.862, Loss:  0.195
-Epoch   3 Batch   36/137 - Train Accuracy:  0.867, Validation Accuracy:  0.871, Loss:  0.189
-Epoch   3 Batch   37/137 - Train Accuracy:  0.865, Validation Accuracy:  0.870, Loss:  0.181
-Epoch   3 Batch   38/137 - Train Accuracy:  0.857, Validation Accuracy:  0.866, Loss:  0.190
-Epoch   3 Batch   39/137 - Train Accuracy:  0.862, Validation Accuracy:  0.866, Loss:  0.189
-Epoch   3 Batch   40/137 - Train Accuracy:  0.848, Validation Accuracy:  0.858, Loss:  0.187
-Epoch   3 Batch   41/137 - Train Accuracy:  0.862, Validation Accuracy:  0.862, Loss:  0.188
-Epoch   3 Batch   42/137 - Train Accuracy:  0.870, Validation Accuracy:  0.869, Loss:  0.193
-Epoch   3 Batch   43/137 - Train Accuracy:  0.848, Validation Accuracy:  0.859, Loss:  0.179
-Epoch   3 Batch   44/137 - Train Accuracy:  0.853, Validation Accuracy:  0.868, Loss:  0.191
-Epoch   3 Batch   45/137 - Train Accuracy:  0.866, Validation Accuracy:  0.870, Loss:  0.184
-Epoch   3 Batch   46/137 - Train Accuracy:  0.874, Validation Accuracy:  0.866, Loss:  0.168
-Epoch   3 Batch   47/137 - Train Accuracy:  0.869, Validation Accuracy:  0.872, Loss:  0.175
-Epoch   3 Batch   48/137 - Train Accuracy:  0.868, Validation Accuracy:  0.877, Loss:  0.185
-Epoch   3 Batch   49/137 - Train Accuracy:  0.854, Validation Accuracy:  0.868, Loss:  0.177
-Epoch   3 Batch   50/137 - Train Accuracy:  0.865, Validation Accuracy:  0.874, Loss:  0.172
-Epoch   3 Batch   51/137 - Train Accuracy:  0.873, Validation Accuracy:  0.871, Loss:  0.173
-Epoch   3 Batch   52/137 - Train Accuracy:  0.866, Validation Accuracy:  0.867, Loss:  0.173
-Epoch   3 Batch   53/137 - Train Accuracy:  0.861, Validation Accuracy:  0.874, Loss:  0.170
-Epoch   3 Batch   54/137 - Train Accuracy:  0.880, Validation Accuracy:  0.873, Loss:  0.159
-Epoch   3 Batch   55/137 - Train Accuracy:  0.869, Validation Accuracy:  0.880, Loss:  0.168
-Epoch   3 Batch   56/137 - Train Accuracy:  0.868, Validation Accuracy:  0.875, Loss:  0.160
-Epoch   3 Batch   57/137 - Train Accuracy:  0.873, Validation Accuracy:  0.869, Loss:  0.161
-Epoch   3 Batch   58/137 - Train Accuracy:  0.881, Validation Accuracy:  0.877, Loss:  0.166
-Epoch   3 Batch   59/137 - Train Accuracy:  0.882, Validation Accuracy:  0.875, Loss:  0.155
-Epoch   3 Batch   60/137 - Train Accuracy:  0.868, Validation Accuracy:  0.873, Loss:  0.157
-Epoch   3 Batch   61/137 - Train Accuracy:  0.882, Validation Accuracy:  0.882, Loss:  0.156
-Epoch   3 Batch   62/137 - Train Accuracy:  0.870, Validation Accuracy:  0.878, Loss:  0.152
-Epoch   3 Batch   63/137 - Train Accuracy:  0.876, Validation Accuracy:  0.877, Loss:  0.149
-Epoch   3 Batch   64/137 - Train Accuracy:  0.867, Validation Accuracy:  0.878, Loss:  0.155
-Epoch   3 Batch   65/137 - Train Accuracy:  0.869, Validation Accuracy:  0.876, Loss:  0.154
-Epoch   3 Batch   66/137 - Train Accuracy:  0.867, Validation Accuracy:  0.877, Loss:  0.161
-Epoch   3 Batch   67/137 - Train Accuracy:  0.875, Validation Accuracy:  0.887, Loss:  0.152
-Epoch   3 Batch   68/137 - Train Accuracy:  0.884, Validation Accuracy:  0.877, Loss:  0.146
-Epoch   3 Batch   69/137 - Train Accuracy:  0.857, Validation Accuracy:  0.881, Loss:  0.169
-Epoch   3 Batch   70/137 - Train Accuracy:  0.869, Validation Accuracy:  0.883, Loss:  0.151
-Epoch   3 Batch   71/137 - Train Accuracy:  0.865, Validation Accuracy:  0.883, Loss:  0.155
-Epoch   3 Batch   72/137 - Train Accuracy:  0.885, Validation Accuracy:  0.885, Loss:  0.147
-Epoch   3 Batch   73/137 - Train Accuracy:  0.883, Validation Accuracy:  0.883, Loss:  0.142
-Epoch   3 Batch   74/137 - Train Accuracy:  0.889, Validation Accuracy:  0.882, Loss:  0.137
-Epoch   3 Batch   75/137 - Train Accuracy:  0.873, Validation Accuracy:  0.878, Loss:  0.152
-Epoch   3 Batch   76/137 - Train Accuracy:  0.873, Validation Accuracy:  0.887, Loss:  0.147
-Epoch   3 Batch   77/137 - Train Accuracy:  0.883, Validation Accuracy:  0.887, Loss:  0.140
-Epoch   3 Batch   78/137 - Train Accuracy:  0.891, Validation Accuracy:  0.883, Loss:  0.142
-Epoch   3 Batch   79/137 - Train Accuracy:  0.887, Validation Accuracy:  0.887, Loss:  0.132
-Epoch   3 Batch   80/137 - Train Accuracy:  0.878, Validation Accuracy:  0.884, Loss:  0.137
-Epoch   3 Batch   81/137 - Train Accuracy:  0.880, Validation Accuracy:  0.890, Loss:  0.139
-Epoch   3 Batch   82/137 - Train Accuracy:  0.887, Validation Accuracy:  0.888, Loss:  0.134
-Epoch   3 Batch   83/137 - Train Accuracy:  0.889, Validation Accuracy:  0.887, Loss:  0.134
-Epoch   3 Batch   84/137 - Train Accuracy:  0.888, Validation Accuracy:  0.887, Loss:  0.125
-Epoch   3 Batch   85/137 - Train Accuracy:  0.890, Validation Accuracy:  0.890, Loss:  0.132
-Epoch   3 Batch   86/137 - Train Accuracy:  0.884, Validation Accuracy:  0.889, Loss:  0.128
-Epoch   3 Batch   87/137 - Train Accuracy:  0.889, Validation Accuracy:  0.892, Loss:  0.131
-Epoch   3 Batch   88/137 - Train Accuracy:  0.890, Validation Accuracy:  0.890, Loss:  0.123
-Epoch   3 Batch   89/137 - Train Accuracy:  0.878, Validation Accuracy:  0.888, Loss:  0.142
-Epoch   3 Batch   90/137 - Train Accuracy:  0.899, Validation Accuracy:  0.888, Loss:  0.120
-Epoch   3 Batch   91/137 - Train Accuracy:  0.888, Validation Accuracy:  0.892, Loss:  0.124
-Epoch   3 Batch   92/137 - Train Accuracy:  0.889, Validation Accuracy:  0.900, Loss:  0.127
-Epoch   3 Batch   93/137 - Train Accuracy:  0.911, Validation Accuracy:  0.902, Loss:  0.102
-Epoch   3 Batch   94/137 - Train Accuracy:  0.899, Validation Accuracy:  0.899, Loss:  0.116
-Epoch   3 Batch   95/137 - Train Accuracy:  0.892, Validation Accuracy:  0.899, Loss:  0.119
-Epoch   3 Batch   96/137 - Train Accuracy:  0.894, Validation Accuracy:  0.897, Loss:  0.115
-Epoch   3 Batch   97/137 - Train Accuracy:  0.888, Validation Accuracy:  0.901, Loss:  0.118
-Epoch   3 Batch   98/137 - Train Accuracy:  0.895, Validation Accuracy:  0.900, Loss:  0.119
-Epoch   3 Batch   99/137 - Train Accuracy:  0.891, Validation Accuracy:  0.897, Loss:  0.120
-Epoch   3 Batch  100/137 - Train Accuracy:  0.886, Validation Accuracy:  0.896, Loss:  0.122
-Epoch   3 Batch  101/137 - Train Accuracy:  0.894, Validation Accuracy:  0.904, Loss:  0.121
-Epoch   3 Batch  102/137 - Train Accuracy:  0.896, Validation Accuracy:  0.902, Loss:  0.113
-Epoch   3 Batch  103/137 - Train Accuracy:  0.900, Validation Accuracy:  0.899, Loss:  0.113
-Epoch   3 Batch  104/137 - Train Accuracy:  0.902, Validation Accuracy:  0.904, Loss:  0.110
-Epoch   3 Batch  105/137 - Train Accuracy:  0.893, Validation Accuracy:  0.904, Loss:  0.109
-Epoch   3 Batch  106/137 - Train Accuracy:  0.903, Validation Accuracy:  0.903, Loss:  0.118
-Epoch   3 Batch  107/137 - Train Accuracy:  0.901, Validation Accuracy:  0.905, Loss:  0.111
-Epoch   3 Batch  108/137 - Train Accuracy:  0.890, Validation Accuracy:  0.904, Loss:  0.115
-Epoch   3 Batch  109/137 - Train Accuracy:  0.904, Validation Accuracy:  0.903, Loss:  0.107
-Epoch   3 Batch  110/137 - Train Accuracy:  0.893, Validation Accuracy:  0.906, Loss:  0.116
-Epoch   3 Batch  111/137 - Train Accuracy:  0.898, Validation Accuracy:  0.907, Loss:  0.112
-Epoch   3 Batch  112/137 - Train Accuracy:  0.896, Validation Accuracy:  0.902, Loss:  0.106
-Epoch   3 Batch  113/137 - Train Accuracy:  0.910, Validation Accuracy:  0.906, Loss:  0.105
-Epoch   3 Batch  114/137 - Train Accuracy:  0.901, Validation Accuracy:  0.909, Loss:  0.107
-Epoch   3 Batch  115/137 - Train Accuracy:  0.906, Validation Accuracy:  0.906, Loss:  0.104
-Epoch   3 Batch  116/137 - Train Accuracy:  0.915, Validation Accuracy:  0.905, Loss:  0.095
-Epoch   3 Batch  117/137 - Train Accuracy:  0.898, Validation Accuracy:  0.909, Loss:  0.109
-Epoch   3 Batch  118/137 - Train Accuracy:  0.896, Validation Accuracy:  0.911, Loss:  0.106
-Epoch   3 Batch  119/137 - Train Accuracy:  0.902, Validation Accuracy:  0.910, Loss:  0.106
-Epoch   3 Batch  120/137 - Train Accuracy:  0.911, Validation Accuracy:  0.912, Loss:  0.098
-Epoch   3 Batch  121/137 - Train Accuracy:  0.909, Validation Accuracy:  0.914, Loss:  0.096
-Epoch   3 Batch  122/137 - Train Accuracy:  0.918, Validation Accuracy:  0.914, Loss:  0.091
-Epoch   3 Batch  123/137 - Train Accuracy:  0.905, Validation Accuracy:  0.910, Loss:  0.104
-Epoch   3 Batch  124/137 - Train Accuracy:  0.911, Validation Accuracy:  0.910, Loss:  0.094
-Epoch   3 Batch  125/137 - Train Accuracy:  0.899, Validation Accuracy:  0.911, Loss:  0.102
-Epoch   3 Batch  126/137 - Train Accuracy:  0.915, Validation Accuracy:  0.915, Loss:  0.093
-Epoch   3 Batch  127/137 - Train Accuracy:  0.917, Validation Accuracy:  0.910, Loss:  0.092
-Epoch   3 Batch  128/137 - Train Accuracy:  0.914, Validation Accuracy:  0.915, Loss:  0.090
-Epoch   3 Batch  129/137 - Train Accuracy:  0.902, Validation Accuracy:  0.919, Loss:  0.097
-Epoch   3 Batch  130/137 - Train Accuracy:  0.900, Validation Accuracy:  0.921, Loss:  0.091
-Epoch   3 Batch  131/137 - Train Accuracy:  0.900, Validation Accuracy:  0.920, Loss:  0.100
-Epoch   3 Batch  132/137 - Train Accuracy:  0.909, Validation Accuracy:  0.919, Loss:  0.101
-Epoch   3 Batch  133/137 - Train Accuracy:  0.917, Validation Accuracy:  0.914, Loss:  0.088
-Epoch   3 Batch  134/137 - Train Accuracy:  0.898, Validation Accuracy:  0.918, Loss:  0.097
-Epoch   3 Batch  135/137 - Train Accuracy:  0.912, Validation Accuracy:  0.918, Loss:  0.095
-Model Trained and Saved
+<pre>Epoch   0 Batch    0/137 - Train Accuracy:  0.956, Validation Accuracy:  0.962, Loss:  0.031
+Epoch   0 Batch    1/137 - Train Accuracy:  0.945, Validation Accuracy:  0.958, Loss:  0.029
+Epoch   0 Batch    2/137 - Train Accuracy:  0.950, Validation Accuracy:  0.955, Loss:  0.029
+Epoch   0 Batch    3/137 - Train Accuracy:  0.954, Validation Accuracy:  0.955, Loss:  0.031
+Epoch   0 Batch    4/137 - Train Accuracy:  0.955, Validation Accuracy:  0.957, Loss:  0.029
+Epoch   0 Batch    5/137 - Train Accuracy:  0.956, Validation Accuracy:  0.959, Loss:  0.032
+Epoch   0 Batch    6/137 - Train Accuracy:  0.952, Validation Accuracy:  0.960, Loss:  0.028
+Epoch   0 Batch    7/137 - Train Accuracy:  0.954, Validation Accuracy:  0.960, Loss:  0.028
+Epoch   0 Batch    8/137 - Train Accuracy:  0.954, Validation Accuracy:  0.957, Loss:  0.030
+Epoch   0 Batch    9/137 - Train Accuracy:  0.960, Validation Accuracy:  0.956, Loss:  0.024
+Epoch   0 Batch   10/137 - Train Accuracy:  0.948, Validation Accuracy:  0.959, Loss:  0.031
+Epoch   0 Batch   11/137 - Train Accuracy:  0.952, Validation Accuracy:  0.959, Loss:  0.028
+Epoch   0 Batch   12/137 - Train Accuracy:  0.947, Validation Accuracy:  0.960, Loss:  0.030
+Epoch   0 Batch   13/137 - Train Accuracy:  0.952, Validation Accuracy:  0.958, Loss:  0.027
+Epoch   0 Batch   14/137 - Train Accuracy:  0.953, Validation Accuracy:  0.962, Loss:  0.031
+Epoch   0 Batch   15/137 - Train Accuracy:  0.955, Validation Accuracy:  0.958, Loss:  0.029
+Epoch   0 Batch   16/137 - Train Accuracy:  0.952, Validation Accuracy:  0.955, Loss:  0.025
+Epoch   0 Batch   17/137 - Train Accuracy:  0.953, Validation Accuracy:  0.956, Loss:  0.036
+Epoch   0 Batch   18/137 - Train Accuracy:  0.947, Validation Accuracy:  0.954, Loss:  0.032
+Epoch   0 Batch   19/137 - Train Accuracy:  0.949, Validation Accuracy:  0.955, Loss:  0.029
+Epoch   0 Batch   20/137 - Train Accuracy:  0.944, Validation Accuracy:  0.952, Loss:  0.032
+Epoch   0 Batch   21/137 - Train Accuracy:  0.958, Validation Accuracy:  0.953, Loss:  0.027
+Epoch   0 Batch   22/137 - Train Accuracy:  0.951, Validation Accuracy:  0.953, Loss:  0.029
+Epoch   0 Batch   23/137 - Train Accuracy:  0.955, Validation Accuracy:  0.953, Loss:  0.024
+Epoch   0 Batch   24/137 - Train Accuracy:  0.947, Validation Accuracy:  0.954, Loss:  0.025
+Epoch   0 Batch   25/137 - Train Accuracy:  0.952, Validation Accuracy:  0.955, Loss:  0.031
+Epoch   0 Batch   26/137 - Train Accuracy:  0.954, Validation Accuracy:  0.955, Loss:  0.026
+Epoch   0 Batch   27/137 - Train Accuracy:  0.947, Validation Accuracy:  0.948, Loss:  0.029
+Epoch   0 Batch   28/137 - Train Accuracy:  0.946, Validation Accuracy:  0.955, Loss:  0.029
+Epoch   0 Batch   29/137 - Train Accuracy:  0.950, Validation Accuracy:  0.953, Loss:  0.029
+Epoch   0 Batch   30/137 - Train Accuracy:  0.951, Validation Accuracy:  0.956, Loss:  0.028
+Epoch   0 Batch   31/137 - Train Accuracy:  0.946, Validation Accuracy:  0.952, Loss:  0.032
+Epoch   0 Batch   32/137 - Train Accuracy:  0.952, Validation Accuracy:  0.952, Loss:  0.029
+Epoch   0 Batch   33/137 - Train Accuracy:  0.947, Validation Accuracy:  0.953, Loss:  0.028
+Epoch   0 Batch   34/137 - Train Accuracy:  0.944, Validation Accuracy:  0.956, Loss:  0.036
+Epoch   0 Batch   35/137 - Train Accuracy:  0.940, Validation Accuracy:  0.946, Loss:  0.033
+Epoch   0 Batch   36/137 - Train Accuracy:  0.949, Validation Accuracy:  0.953, Loss:  0.033
+Epoch   0 Batch   37/137 - Train Accuracy:  0.950, Validation Accuracy:  0.956, Loss:  0.028
+Epoch   0 Batch   38/137 - Train Accuracy:  0.954, Validation Accuracy:  0.957, Loss:  0.029
+Epoch   0 Batch   39/137 - Train Accuracy:  0.954, Validation Accuracy:  0.958, Loss:  0.031
+Epoch   0 Batch   40/137 - Train Accuracy:  0.947, Validation Accuracy:  0.957, Loss:  0.029
+Epoch   0 Batch   41/137 - Train Accuracy:  0.958, Validation Accuracy:  0.960, Loss:  0.027
+Epoch   0 Batch   42/137 - Train Accuracy:  0.953, Validation Accuracy:  0.960, Loss:  0.034
+Epoch   0 Batch   43/137 - Train Accuracy:  0.949, Validation Accuracy:  0.959, Loss:  0.026
+Epoch   0 Batch   44/137 - Train Accuracy:  0.950, Validation Accuracy:  0.957, Loss:  0.028
+Epoch   0 Batch   45/137 - Train Accuracy:  0.956, Validation Accuracy:  0.963, Loss:  0.028
+Epoch   0 Batch   46/137 - Train Accuracy:  0.959, Validation Accuracy:  0.961, Loss:  0.024
+Epoch   0 Batch   47/137 - Train Accuracy:  0.951, Validation Accuracy:  0.958, Loss:  0.029
+Epoch   0 Batch   48/137 - Train Accuracy:  0.954, Validation Accuracy:  0.959, Loss:  0.031
+Epoch   0 Batch   49/137 - Train Accuracy:  0.953, Validation Accuracy:  0.956, Loss:  0.031
+Epoch   0 Batch   50/137 - Train Accuracy:  0.958, Validation Accuracy:  0.955, Loss:  0.028
+Epoch   0 Batch   51/137 - Train Accuracy:  0.947, Validation Accuracy:  0.955, Loss:  0.028
+Epoch   0 Batch   52/137 - Train Accuracy:  0.963, Validation Accuracy:  0.955, Loss:  0.028
+Epoch   0 Batch   53/137 - Train Accuracy:  0.950, Validation Accuracy:  0.958, Loss:  0.028
+Epoch   0 Batch   54/137 - Train Accuracy:  0.962, Validation Accuracy:  0.959, Loss:  0.027
+Epoch   0 Batch   55/137 - Train Accuracy:  0.952, Validation Accuracy:  0.960, Loss:  0.027
+Epoch   0 Batch   56/137 - Train Accuracy:  0.954, Validation Accuracy:  0.958, Loss:  0.028
+Epoch   0 Batch   57/137 - Train Accuracy:  0.949, Validation Accuracy:  0.958, Loss:  0.029
+Epoch   0 Batch   58/137 - Train Accuracy:  0.949, Validation Accuracy:  0.955, Loss:  0.029
+Epoch   0 Batch   59/137 - Train Accuracy:  0.952, Validation Accuracy:  0.953, Loss:  0.025
+Epoch   0 Batch   60/137 - Train Accuracy:  0.958, Validation Accuracy:  0.958, Loss:  0.027
+Epoch   0 Batch   61/137 - Train Accuracy:  0.950, Validation Accuracy:  0.958, Loss:  0.028
+Epoch   0 Batch   62/137 - Train Accuracy:  0.954, Validation Accuracy:  0.959, Loss:  0.026
+Epoch   0 Batch   63/137 - Train Accuracy:  0.955, Validation Accuracy:  0.958, Loss:  0.026
+Epoch   0 Batch   64/137 - Train Accuracy:  0.952, Validation Accuracy:  0.957, Loss:  0.027
+Epoch   0 Batch   65/137 - Train Accuracy:  0.954, Validation Accuracy:  0.956, Loss:  0.027
+Epoch   0 Batch   66/137 - Train Accuracy:  0.947, Validation Accuracy:  0.958, Loss:  0.031
+Epoch   0 Batch   67/137 - Train Accuracy:  0.950, Validation Accuracy:  0.959, Loss:  0.028
+Epoch   0 Batch   68/137 - Train Accuracy:  0.957, Validation Accuracy:  0.958, Loss:  0.024
+Epoch   0 Batch   69/137 - Train Accuracy:  0.946, Validation Accuracy:  0.960, Loss:  0.032
+Epoch   0 Batch   70/137 - Train Accuracy:  0.948, Validation Accuracy:  0.959, Loss:  0.026
+Epoch   0 Batch   71/137 - Train Accuracy:  0.954, Validation Accuracy:  0.955, Loss:  0.028
+Epoch   0 Batch   72/137 - Train Accuracy:  0.953, Validation Accuracy:  0.956, Loss:  0.028
+Epoch   0 Batch   73/137 - Train Accuracy:  0.957, Validation Accuracy:  0.961, Loss:  0.024
+Epoch   0 Batch   74/137 - Train Accuracy:  0.958, Validation Accuracy:  0.959, Loss:  0.022
+Epoch   0 Batch   75/137 - Train Accuracy:  0.954, Validation Accuracy:  0.958, Loss:  0.031
+Epoch   0 Batch   76/137 - Train Accuracy:  0.960, Validation Accuracy:  0.958, Loss:  0.029
+Epoch   0 Batch   77/137 - Train Accuracy:  0.954, Validation Accuracy:  0.958, Loss:  0.027
+Epoch   0 Batch   78/137 - Train Accuracy:  0.962, Validation Accuracy:  0.958, Loss:  0.027
+Epoch   0 Batch   79/137 - Train Accuracy:  0.953, Validation Accuracy:  0.960, Loss:  0.027
+Epoch   0 Batch   80/137 - Train Accuracy:  0.957, Validation Accuracy:  0.960, Loss:  0.027
+Epoch   0 Batch   81/137 - Train Accuracy:  0.955, Validation Accuracy:  0.955, Loss:  0.027
+Epoch   0 Batch   82/137 - Train Accuracy:  0.957, Validation Accuracy:  0.956, Loss:  0.026
+Epoch   0 Batch   83/137 - Train Accuracy:  0.960, Validation Accuracy:  0.956, Loss:  0.027
+Epoch   0 Batch   84/137 - Train Accuracy:  0.958, Validation Accuracy:  0.959, Loss:  0.026
+Epoch   0 Batch   85/137 - Train Accuracy:  0.949, Validation Accuracy:  0.954, Loss:  0.030
+Epoch   0 Batch   86/137 - Train Accuracy:  0.948, Validation Accuracy:  0.958, Loss:  0.028
+Epoch   0 Batch   87/137 - Train Accuracy:  0.952, Validation Accuracy:  0.959, Loss:  0.029
+Epoch   0 Batch   88/137 - Train Accuracy:  0.958, Validation Accuracy:  0.959, Loss:  0.023
+Epoch   0 Batch   89/137 - Train Accuracy:  0.942, Validation Accuracy:  0.956, Loss:  0.037
+Epoch   0 Batch   90/137 - Train Accuracy:  0.959, Validation Accuracy:  0.952, Loss:  0.026
+Epoch   0 Batch   91/137 - Train Accuracy:  0.954, Validation Accuracy:  0.962, Loss:  0.028
+Epoch   0 Batch   92/137 - Train Accuracy:  0.946, Validation Accuracy:  0.957, Loss:  0.029
+Epoch   0 Batch   93/137 - Train Accuracy:  0.966, Validation Accuracy:  0.960, Loss:  0.024
+Epoch   0 Batch   94/137 - Train Accuracy:  0.950, Validation Accuracy:  0.946, Loss:  0.025
+Epoch   0 Batch   95/137 - Train Accuracy:  0.957, Validation Accuracy:  0.959, Loss:  0.027
+Epoch   0 Batch   96/137 - Train Accuracy:  0.955, Validation Accuracy:  0.964, Loss:  0.026
+Epoch   0 Batch   97/137 - Train Accuracy:  0.954, Validation Accuracy:  0.961, Loss:  0.026
+Epoch   0 Batch   98/137 - Train Accuracy:  0.957, Validation Accuracy:  0.958, Loss:  0.025
+Epoch   0 Batch   99/137 - Train Accuracy:  0.953, Validation Accuracy:  0.958, Loss:  0.026
+Epoch   0 Batch  100/137 - Train Accuracy:  0.947, Validation Accuracy:  0.962, Loss:  0.027
+Epoch   0 Batch  101/137 - Train Accuracy:  0.956, Validation Accuracy:  0.961, Loss:  0.027
+Epoch   0 Batch  102/137 - Train Accuracy:  0.961, Validation Accuracy:  0.961, Loss:  0.027
+Epoch   0 Batch  103/137 - Train Accuracy:  0.949, Validation Accuracy:  0.956, Loss:  0.027
+Epoch   0 Batch  104/137 - Train Accuracy:  0.961, Validation Accuracy:  0.957, Loss:  0.025
+Epoch   0 Batch  105/137 - Train Accuracy:  0.952, Validation Accuracy:  0.961, Loss:  0.026
+Epoch   0 Batch  106/137 - Train Accuracy:  0.955, Validation Accuracy:  0.959, Loss:  0.030
+Epoch   0 Batch  107/137 - Train Accuracy:  0.953, Validation Accuracy:  0.958, Loss:  0.025
+Epoch   0 Batch  108/137 - Train Accuracy:  0.948, Validation Accuracy:  0.962, Loss:  0.032
+Epoch   0 Batch  109/137 - Train Accuracy:  0.956, Validation Accuracy:  0.960, Loss:  0.026
+Epoch   0 Batch  110/137 - Train Accuracy:  0.951, Validation Accuracy:  0.960, Loss:  0.033
+Epoch   0 Batch  111/137 - Train Accuracy:  0.950, Validation Accuracy:  0.959, Loss:  0.027
+Epoch   0 Batch  112/137 - Train Accuracy:  0.950, Validation Accuracy:  0.954, Loss:  0.026
+Epoch   0 Batch  113/137 - Train Accuracy:  0.963, Validation Accuracy:  0.958, Loss:  0.023
+Epoch   0 Batch  114/137 - Train Accuracy:  0.950, Validation Accuracy:  0.963, Loss:  0.029
+Epoch   0 Batch  115/137 - Train Accuracy:  0.956, Validation Accuracy:  0.962, Loss:  0.028
+Epoch   0 Batch  116/137 - Train Accuracy:  0.960, Validation Accuracy:  0.962, Loss:  0.028
+Epoch   0 Batch  117/137 - Train Accuracy:  0.945, Validation Accuracy:  0.956, Loss:  0.028
+Epoch   0 Batch  118/137 - Train Accuracy:  0.953, Validation Accuracy:  0.957, Loss:  0.025
+Epoch   0 Batch  119/137 - Train Accuracy:  0.962, Validation Accuracy:  0.961, Loss:  0.026
+Epoch   0 Batch  120/137 - Train Accuracy:  0.958, Validation Accuracy:  0.955, Loss:  0.024
+Epoch   0 Batch  121/137 - Train Accuracy:  0.961, Validation Accuracy:  0.964, Loss:  0.025
+Epoch   0 Batch  122/137 - Train Accuracy:  0.956, Validation Accuracy:  0.962, Loss:  0.024
+Epoch   0 Batch  123/137 - Train Accuracy:  0.947, Validation Accuracy:  0.960, Loss:  0.028
+Epoch   0 Batch  124/137 - Train Accuracy:  0.960, Validation Accuracy:  0.964, Loss:  0.023
+Epoch   0 Batch  125/137 - Train Accuracy:  0.953, Validation Accuracy:  0.968, Loss:  0.026
+Epoch   0 Batch  126/137 - Train Accuracy:  0.961, Validation Accuracy:  0.962, Loss:  0.023
+Epoch   0 Batch  127/137 - Train Accuracy:  0.958, Validation Accuracy:  0.958, Loss:  0.023
+Epoch   0 Batch  128/137 - Train Accuracy:  0.960, Validation Accuracy:  0.958, Loss:  0.021
+Epoch   0 Batch  129/137 - Train Accuracy:  0.951, Validation Accuracy:  0.961, Loss:  0.026
+Epoch   0 Batch  130/137 - Train Accuracy:  0.951, Validation Accuracy:  0.962, Loss:  0.024
+Epoch   0 Batch  131/137 - Train Accuracy:  0.962, Validation Accuracy:  0.963, Loss:  0.025
+Epoch   0 Batch  132/137 - Train Accuracy:  0.959, Validation Accuracy:  0.963, Loss:  0.029
+Epoch   0 Batch  133/137 - Train Accuracy:  0.956, Validation Accuracy:  0.962, Loss:  0.024
+Epoch   0 Batch  134/137 - Train Accuracy:  0.956, Validation Accuracy:  0.964, Loss:  0.027
+Epoch   0 Batch  135/137 - Train Accuracy:  0.956, Validation Accuracy:  0.960, Loss:  0.024
+Model Saved
+Finished
 </pre>
 </div>
 </div>
@@ -13311,6 +12910,16 @@ Model Trained and Saved
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Note-on-the-above-^:">Note on the above ^:<a class="anchor-link" href="#Note-on-the-above-^:">&#182;</a></h3><p>it ran a total of 12 epochs, but had to save and resume a few times</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Save-Parameters">Save Parameters<a class="anchor-link" href="#Save-Parameters">&#182;</a></h3><p>Save the <code>batch_size</code> and <code>save_path</code> parameters for inference.</p>
 
 </div>
@@ -13318,7 +12927,7 @@ Model Trained and Saved
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -13344,7 +12953,7 @@ Model Trained and Saved
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -13383,7 +12992,7 @@ Model Trained and Saved
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">sentence_to_seq</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">vocab_to_int</span><span class="p">):</span>
@@ -13394,7 +13003,7 @@ Model Trained and Saved
 <span class="sd">    :return: List of word ids</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unknown</span> <span class="o">=</span> <span class="n">vocab_to_int</span><span class="p">[</span><span class="s1">&#39;&lt;UNK&gt;&#39;</span><span class="p">]</span>
-    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">vocab_to_int</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">unknown</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">vocab_to_int</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">unknown</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">ids</span>
 
 
@@ -13437,7 +13046,7 @@ Model Trained and Saved
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">translate_sentence</span> <span class="o">=</span> <span class="s1">&#39;he saw a old yellow truck .&#39;</span>
@@ -13482,12 +13091,12 @@ Model Trained and Saved
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Input
-  Word Ids:      [214, 122, 120, 86, 175, 20, 5]
+  Word Ids:      [100, 140, 201, 104, 157, 15, 197]
   English Words: [&#39;he&#39;, &#39;saw&#39;, &#39;a&#39;, &#39;old&#39;, &#39;yellow&#39;, &#39;truck&#39;, &#39;.&#39;]
 
 Prediction
-  Word Ids:      [159, 130, 158, 307, 122, 234, 5, 1]
-  French Words: [&#39;il&#39;, &#39;a&#39;, &#39;vu&#39;, &#39;un&#39;, &#39;nouveau&#39;, &#39;maillot&#39;, &#39;.&#39;, &#39;&lt;EOS&gt;&#39;]
+  Word Ids:      [55, 154, 217, 268, 76, 142, 318, 342, 1]
+  French Words: [&#39;il&#39;, &#39;a&#39;, &#39;pas&#39;, &#39;un&#39;, &#39;nouveau&#39;, &#39;camion&#39;, &#39;noir&#39;, &#39;.&#39;, &#39;&lt;EOS&gt;&#39;]
 </pre>
 </div>
 </div>
